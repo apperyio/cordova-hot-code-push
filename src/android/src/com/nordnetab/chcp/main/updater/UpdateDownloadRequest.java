@@ -15,6 +15,7 @@ public class UpdateDownloadRequest {
 
     private String configURL;
     private PluginFilesStructure currentReleaseFS;
+    private String currentReleaseVersion;
     private int currentNativeVersion;
     private Map<String, String> requestHeaders;
 
@@ -33,6 +34,7 @@ public class UpdateDownloadRequest {
                                  final int currentNativeVersion,
                                  final Map<String, String> requestHeaders) {
         this.configURL = configURL;
+        this.currentReleaseVersion = currentReleaseVersion;
         this.currentNativeVersion = currentNativeVersion;
         this.requestHeaders = requestHeaders;
         this.currentReleaseFS = new PluginFilesStructure(context, currentReleaseVersion);
@@ -64,6 +66,15 @@ public class UpdateDownloadRequest {
      */
     public PluginFilesStructure getCurrentReleaseFileStructure() {
         return currentReleaseFS;
+    }
+
+    /**
+     * Current release version.
+     *
+     * @return current release version.
+     */
+    public String getCurrentReleaseVersion() {
+        return currentReleaseVersion;
     }
 
     /**

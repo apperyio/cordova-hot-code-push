@@ -38,6 +38,7 @@ import java.util.Map;
 class UpdateLoaderWorker implements WorkerTask {
 
     private final String applicationConfigUrl;
+    private final String appReleaseVersion;
     private final int appNativeVersion;
     private final PluginFilesStructure filesStructure;
     private final Map<String, String> requestHeaders;
@@ -57,6 +58,7 @@ class UpdateLoaderWorker implements WorkerTask {
      */
     UpdateLoaderWorker(final UpdateDownloadRequest request) {
         applicationConfigUrl = request.getConfigURL();
+        appReleaseVersion = request.getCurrentReleaseVersion();
         appNativeVersion = request.getCurrentNativeVersion();
         filesStructure = request.getCurrentReleaseFileStructure();
         requestHeaders = request.getRequestHeaders();
@@ -95,6 +97,12 @@ class UpdateLoaderWorker implements WorkerTask {
             setErrorResult(ChcpError.APPLICATION_BUILD_VERSION_TOO_LOW, newAppConfig);
             return;
         }
+        if (newContentConfig.getReleaseVersion().compareTo(appReleaseVersion) < 0 ) {
+            setErrorResult(ChcpError.APPLICATION_IS_NEWER_THAN_UPDATE, newAppConfig);
+            return;
+        }
+
+        // check if current native version had been build after new content
 
         // download new content manifest
         final ContentManifest newContentManifest = downloadContentManifest(newContentConfig.getContentUrl());
