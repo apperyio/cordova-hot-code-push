@@ -1,6 +1,6 @@
 {
   "name": "cordova-hot-code-push-plugin",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Cordova plugin to perform code updates on the fly",
   "cordova": {
     "id": "cordova-hot-code-push-plugin",
@@ -11,9 +11,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nordnet/cordova-hot-code-push.git"
+    "url": "git+https://github.com/apperyio/cordova-hot-code-push.git"
   },
   "keywords": [
+    "appery",
+    "appery.io",
     "cordova",
     "nordnet",
     "mobile",
