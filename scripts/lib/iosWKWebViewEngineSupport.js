@@ -68,10 +68,15 @@ function isDirectoryExists(dir) {
  */
 function loadProjectFile() {
   try {
-    return loadProjectFile_cordova_7_and_above();
+    return loadProjectFile_cordova_9_and_above();
   } catch(e) {
   }
-  
+
+  try {
+    return loadProjectFile_cordova_7_and_8();
+  } catch(e) {
+  }
+
   try {
     return loadProjectFile_cordova_5_and_6();
   } catch(e) {
@@ -97,9 +102,24 @@ function loadProjectFile_cordova_5_and_6() {
   return platformIos.parseProjectFile(iosPlatformPath);
 }
 
-function loadProjectFile_cordova_7_and_above() {
+function loadProjectFile_cordova_7_and_8() {
   var pbxPath = path.join(iosPlatformPath, projectName + '.xcodeproj', 'project.pbxproj');
   var xcodeproj = context.requireCordovaModule('xcode').project(pbxPath);
+  xcodeproj.parseSync();
+
+  var saveProj = function() {
+    fs.writeFileSync(pbxPath, xcodeproj.writeSync());
+  };
+
+  return {
+    xcode: xcodeproj,
+    write: saveProj
+  };
+}
+
+function loadProjectFile_cordova_9_and_above() {
+  var pbxPath = path.join(iosPlatformPath, projectName + '.xcodeproj', 'project.pbxproj');
+  var xcodeproj = require('xcode').project(pbxPath);
   xcodeproj.parseSync();
 
   var saveProj = function() {
