@@ -4,7 +4,7 @@
 //  Created by Nikolay Demyankov on 04.04.16.
 //
 
-#if WK_WEBVIEW_ENGINE_IS_USED
+#if WK_WEB_VIEW_ONLY==1
 
 #import "CDVWKWebViewEngine.h"
 
