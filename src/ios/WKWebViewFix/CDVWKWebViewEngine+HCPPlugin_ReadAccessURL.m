@@ -4,8 +4,6 @@
 //  Created by Nikolay Demyankov on 04.04.16.
 //
 
-#if WK_WEB_VIEW_ONLY==1
-
 #import "CDVWKWebViewEngine+HCPPlugin_ReadAccessURL.h"
 #import <objc/message.h>
 #import "HCPFilesStructure.h"
@@ -47,9 +45,11 @@
 }
 
 #else
-#error CANNOT FIND ANY WebViewEngine Include
+#warning CANNOT FIND ANY WebViewEngine Include
 #endif
 #endif
+
+#if FOUND_WK_WEB_VIEW==1
 
 - (id)loadRequest:(NSURLRequest*)request
 {
