@@ -35,6 +35,7 @@
     }
   ],
   "dependencies": {
+    "md5-file": "^5.0.0",
     "xcode": "^2.1.0",
     "xml2js": "^0.4"
   },
