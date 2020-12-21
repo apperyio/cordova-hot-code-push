@@ -26,6 +26,7 @@ var chcpBuildOptions = require('./lib/chcpBuildOptions.js');
 var chcpConfigXmlReader = require('./lib/chcpConfigXmlReader.js');
 var chcpConfigXmlWriter = require('./lib/chcpConfigXmlWriter.js');
 var iosWKWebViewEngineSupport = require('./lib/iosWKWebViewEngineSupport.js');
+var fs = require('fs');
 var BUILD_OPTION_PREFIX = 'chcp-';
 var RELEASE_BUILD_FLAG = '--release';
 
@@ -148,6 +149,69 @@ function prepareWithCustomBuildOption(ctx, optionName, chcpXmlOptions) {
   return true;
 }
 
+function prepareChcpJson(ctx) {
+  var fs = fs || require('fs');
+  if (fs.existsSync('resources/chcp.json')) {
+    console.log('Copy resources/chcp.json to www folder');
+    fs.copyFileSync('resources/chcp.json', 'www/chcp.json');
+    if (ctx.opts.platforms.includes('android')) {
+      fs.copyFileSync('resources/chcp.json', 'platforms/android/app/src/main/assets/www/chcp.json');
+    }
+    if (ctx.opts.platforms.includes('ios')) {
+      fs.copyFileSync('resources/chcp.json', 'platforms/ios/www/chcp.json');
+    }
+  }
+}
+
+function prepareChcpManifest(ctx) {
+  var fs = fs || require('fs');
+  var md5File = md5File || require('md5-file');
+  var process = process || require('process');
+
+  var walkSync = function(dir, filelist) {
+    var files = fs.readdirSync(dir);
+    filelist = filelist || [];
+    files.forEach(function(file) {
+      if (fs.statSync(dir + '/' + file).isDirectory()) {
+        filelist = walkSync(dir + '/' + file, filelist);
+      }
+      else {
+        filelist.push(dir + '/' + file);
+      }
+    });
+    return filelist;
+  };
+
+  console.log('Preparing chcp.manifest');
+  var manifest = [];
+  var tmpDir = process.cwd();
+  process.chdir('www');
+  var filelist = walkSync('.');
+  filelist.forEach(file => {
+    if (file.endsWith('cordova.js') || file.endsWith('get_target_platform.js') || file.startsWith('plugins/')) {
+      // Skip file
+    } else {
+      var item = {};
+      item['file'] = file.replace('./', '');
+      item['hash'] = md5File.sync(file);
+      manifest.push(item);
+    }
+  });
+
+  // Write chcp.manifest
+  var json = JSON.stringify(manifest, null, 2);
+
+  fs.writeFileSync('chcp.manifest', json);
+  process.chdir(tmpDir);
+  if (ctx.opts.platforms.includes('android')) {
+    fs.copyFileSync('www/chcp.manifest', 'platforms/android/app/src/main/assets/www/chcp.manifest');
+  }
+  if (ctx.opts.platforms.includes('ios')) {
+    fs.copyFileSync('www/chcp.manifest', 'platforms/ios/www/chcp.manifest');
+  }
+  console.log('chcp.manifest created');
+}
+
 /**
  * Merge build options into current config.xml preferences.
  *
@@ -180,6 +244,9 @@ module.exports = function(ctx) {
 
   // read plugin preferences from config.xml
   chcpXmlOptions = chcpConfigXmlReader.readOptions(ctx);
+
+  prepareChcpJson(ctx);
+  prepareChcpManifest(ctx);
 
   // if any build option is provided in console - try to map it with chcpbuild.options
   if (prepareWithCustomBuildOption(ctx, consoleOptions.buildOption, chcpXmlOptions)) {
