@@ -1,6 +1,8 @@
 package com.nordnetab.chcp.main;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
@@ -51,6 +53,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -625,7 +628,24 @@ public class HotCodePushPlugin extends CordovaPlugin {
 
         // load index page from the external source
         external = Paths.get(fileStructure.getWwwFolder(), indexPage);
-        webView.loadUrlIntoView(FILE_PREFIX + external, false);
+
+        // Save new folder as a base path for Ionic Web View
+        SharedPreferences prefs = cordova.getContext().getSharedPreferences("WebViewSettings", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("serverBasePath", fileStructure.getWwwFolder());
+        editor.apply();
+
+        if ("IonicWebViewEngine".equals(webView.getEngine().getClass().getSimpleName())) {
+            try {
+                Method method = webView.getEngine().getClass().getMethod("setServerBasePath", String.class);
+                method.invoke(webView.getEngine(), fileStructure.getWwwFolder());
+            } catch (Exception e) {
+                Log.e("CHCP", "Can't set server base path for IonicWebViewEngine", e);
+            }
+            webView.loadUrlIntoView("http://localhost" + indexPage, false);
+        } else {
+            webView.loadUrlIntoView(FILE_PREFIX + external, false);
+        }
 
         Log.d("CHCP", "Loading external page: " + external);
     }
