@@ -235,6 +235,9 @@ module.exports = function(ctx) {
     iosWKWebViewEngineSupport.setWKWebViewEngineMacro(ctx);
   }
 
+  prepareChcpJson(ctx);
+  prepareChcpManifest(ctx);
+
   // if we are running build with --release option - do nothing
   var consoleOptions = processConsoleOptions(ctx);
   if (consoleOptions.isRelease) {
@@ -244,9 +247,6 @@ module.exports = function(ctx) {
 
   // read plugin preferences from config.xml
   chcpXmlOptions = chcpConfigXmlReader.readOptions(ctx);
-
-  prepareChcpJson(ctx);
-  prepareChcpManifest(ctx);
 
   // if any build option is provided in console - try to map it with chcpbuild.options
   if (prepareWithCustomBuildOption(ctx, consoleOptions.buildOption, chcpXmlOptions)) {
